@@ -16,6 +16,7 @@ from os.path import exists
 import geopy.distance
 import time
 import socket
+import sys
 
 # Check if CSV file exists, create if not
 if not exists('internet_log.csv'):
@@ -27,39 +28,48 @@ if not exists('internet_log.csv'):
 
 # START LOOP
 counter = 0
-try:
-    while True:
-        # START SPEED TEST
-        servers = []
-        
-        s = speedtest.Speedtest()
-        s.get_servers(servers)
-        s.get_best_server()
-        
-        s.download()
-        downloadSpeedMbps = s.results.download / 1000000
-        
-        s.upload()
-        uploadSpeedMbps = s.results.upload / 1000000
-        
-        # Distance Calculation
-        coords_server = (s.results.server['lat'], s.results.server['lon'])
-        coords_client = (s.results.client['lat'], s.results.client['lon'])
-        
-        distance = round(geopy.distance.distance(coords_server, coords_client).km, 2)
-        
-        # WRITE TO CSV 
-        with open('internet_log.csv', mode='a', newline='') as internetLogFile:
-            internetLogWriter = csv.writer(internetLogFile, delimiter=';')
-            internetLogWriter.writerow([round(downloadSpeedMbps, 2), round(uploadSpeedMbps, 2), 
-                                        round(s.results.ping), s.results.server['url'], s.results.server['name'],
-                                        distance, s.results.timestamp, s.results.client['ip'], socket.gethostname(),
-                                        'Wifi Freq', 'Wifi Strength'])
-        counter+=1
-        print('Finished SpeedTest number. ',counter)
-        
-        timeToSleep = 900
-        print('Sleeping script:', timeToSleep/60, 'minutes')
+timeToSleep = 10 #900 = 15 minutes
+for i in range(0,100):
+    try:
+        while True:
+            try:
+                # START SPEED TEST
+                servers = []
+                
+                print('Starting Test')
+                
+                s = speedtest.Speedtest()
+                s.get_servers(servers)
+                s.get_best_server()
+                
+                s.download()
+                downloadSpeedMbps = s.results.download / 1000000
+                
+                s.upload()
+                uploadSpeedMbps = s.results.upload / 1000000
+                
+                # Distance Calculation
+                coords_server = (s.results.server['lat'], s.results.server['lon'])
+                coords_client = (s.results.client['lat'], s.results.client['lon'])
+                
+                distance = round(geopy.distance.distance(coords_server, coords_client).km, 2)
+                
+                # WRITE TO CSV 
+                with open('internet_log.csv', mode='a', newline='') as internetLogFile:
+                    internetLogWriter = csv.writer(internetLogFile, delimiter=';')
+                    internetLogWriter.writerow([round(downloadSpeedMbps, 2), round(uploadSpeedMbps, 2), 
+                                                round(s.results.ping), s.results.server['url'], s.results.server['name'],
+                                                distance, s.results.timestamp, s.results.client['ip'], socket.gethostname(),
+                                                'Wifi Freq', 'Wifi Strength'])
+                counter+=1
+                print('Finished SpeedTest number. ',counter)
+                
+                print('Sleeping script:', timeToSleep/60, 'minutes')
+                time.sleep(timeToSleep)
+            except KeyboardInterrupt:
+                sys.exit()
+    except:
+        print('Error, sleeping:',timeToSleep/60, 'minutes and trying again')
         time.sleep(timeToSleep)
-except KeyboardInterrupt:
-    pass
+        continue
+    
