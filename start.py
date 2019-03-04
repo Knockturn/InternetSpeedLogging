@@ -17,6 +17,7 @@ import geopy.distance
 import time
 import socket
 import sys
+import datetime
 
 # Check if CSV file exists, create if not
 if not exists('internet_log.csv'):
@@ -28,7 +29,7 @@ if not exists('internet_log.csv'):
 
 # START LOOP
 counter = 0
-timeToSleep = 10 #900 = 15 minutes
+timeToSleep = 900 #900 = 15 minutes
 for i in range(0,100):
     try:
         while True:
@@ -54,7 +55,7 @@ for i in range(0,100):
                 
                 distance = round(geopy.distance.distance(coords_server, coords_client).km, 2)
                 
-                # WRITE TO CSV 
+                # WRITE TO CSV - Log the test
                 with open('internet_log.csv', mode='a', newline='') as internetLogFile:
                     internetLogWriter = csv.writer(internetLogFile, delimiter=';')
                     internetLogWriter.writerow([round(downloadSpeedMbps, 2), round(uploadSpeedMbps, 2), 
@@ -69,6 +70,12 @@ for i in range(0,100):
             except KeyboardInterrupt:
                 sys.exit()
     except:
+        #Log the error
+        with open('internet_log.csv', mode='a', newline='') as internetLogFile:
+                    internetLogWriter = csv.writer(internetLogFile, delimiter=';')
+                    internetLogWriter.writerow(['ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR',
+                                                'ERROR', datetime.datetime.now(), 'ERROR', 'ERROR',
+                                                'ERROR', 'ERROR'])
         print('Error, sleeping:',timeToSleep/60, 'minutes and trying again')
         time.sleep(timeToSleep)
         continue
