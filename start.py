@@ -34,10 +34,11 @@ for i in range(0,100):
     try:
         while True:
             try:
+                counter+=1
                 # START SPEED TEST
                 servers = []
                 
-                print('Starting Test')
+                print('Starting Test Nr.:', counter)
                 
                 s = speedtest.Speedtest()
                 s.get_servers(servers)
@@ -62,21 +63,20 @@ for i in range(0,100):
                                                 round(s.results.ping), s.results.server['url'], s.results.server['name'],
                                                 distance, s.results.timestamp, s.results.client['ip'], socket.gethostname(),
                                                 'Wifi Freq', 'Wifi Strength'])
-                counter+=1
-                print('Finished SpeedTest number. ',counter)
                 
-                print('Sleeping script:', timeToSleep/60, 'minutes')
+                print('Test Finished. Sleeping script:', timeToSleep/60, 'minutes')
                 time.sleep(timeToSleep)
             except KeyboardInterrupt:
                 sys.exit()
     except:
+        counter+=1
+        print('\nERROR WITH RUN NR.:', counter, 'sleeping:',timeToSleep/60, 'minutes and trying again')
         #Log the error
         with open('internet_log.csv', mode='a', newline='') as internetLogFile:
                     internetLogWriter = csv.writer(internetLogFile, delimiter=';')
                     internetLogWriter.writerow(['ERROR', 'ERROR', 'ERROR', 'ERROR', 'ERROR',
                                                 'ERROR', datetime.datetime.now(), 'ERROR', 'ERROR',
                                                 'ERROR', 'ERROR'])
-        print('Error, sleeping:',timeToSleep/60, 'minutes and trying again')
         time.sleep(timeToSleep)
         continue
     
